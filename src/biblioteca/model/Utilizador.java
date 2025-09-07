@@ -1,3 +1,5 @@
+package biblioteca.model;
+
 public class Utilizador {
 
     private String nome;

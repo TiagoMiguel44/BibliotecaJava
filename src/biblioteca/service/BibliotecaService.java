@@ -1,9 +1,15 @@
+package biblioteca.service;
+
+import biblioteca.model.Livro;
+import biblioteca.model.Utilizador;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class BibliotecaService {
 
 private List<Livro> livros; // lista principal dos livros da biblioteca
+    private List<Utilizador> utilizadores;
 
 public BibliotecaService() {
     this.livros = new ArrayList<>(); // inicializa a lista de livros
@@ -29,6 +35,21 @@ public List<Livro> getLivrosporAutor(String autor) {
     }
     return livros;
 }
+
+public List<Livro> getLivros() { // metodo que retorna a lista principal de livros
+    return this.livros;
+}
+
+public void adicionarUtilizador(Utilizador utilizador) { // metodo que adiciona um utilizador à lista de utilizadores
+    this.utilizadores.add(utilizador);
+}
+
+public List<Utilizador> getUtilizadores() { // metodo que retorna a lista de utilizadores
+    return this.utilizadores;
+}
+
+
+
 
 }
 
