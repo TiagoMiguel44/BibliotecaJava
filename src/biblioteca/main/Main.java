@@ -92,6 +92,7 @@ public class Main {
             System.out.println("5. Listar Livros por Titulo");
             System.out.println("6. Listar Livros por Autor");
             System.out.println("7. Sair");
+            System.out.print("8. Devolver Livro");
             System.out.print("Escolha uma opcao: ");
             opcao = input.nextInt();
             input.nextLine(); // Consumir a nova linha
@@ -137,6 +138,7 @@ public class Main {
                     try {
                         Utilizador utilizador = UtilizadorFactory.criarUtilizador(nome, email, tipo); // Usar a factory para criar o utilizador
                         bibliotecaService.adicionarUtilizador(utilizador);
+                        bibliotecaService.registarObservador(utilizador);
                         System.out.println("Utilizador adicionado com sucesso!");
                     } catch (IllegalArgumentException e) {
                         System.out.println("Erro: " + e.getMessage());
@@ -194,6 +196,19 @@ public class Main {
                     System.out.println("A guardar livros e a sair...");
                     guardarLivros(new ArrayList<>(bibliotecaService.getLivros()));
                     guardarUtilizadores(new ArrayList<>(bibliotecaService.getUtilizadores()));
+                    break;
+                case 8:
+                    System.out.print("Digite o titulo do livro a devolver: ");
+                    String tituloDevolucao = input.nextLine();
+                    List<Livro> livrosencontrados = bibliotecaService.getLivrosporTitulo(tituloDevolucao);
+                    if (livrosencontrados.isEmpty()) {
+                        System.out.println("Nenhum livro encontrado com esse titulo.");
+                    } else {
+                        // Simular a devolução do livro (aqui apenas removemos da lista)
+                        Livro livrodevolvido = livrosencontrados.getFirst(); // Devolve o primeiro livro encontrado
+                        bibliotecaService.devolverLivro(livrodevolvido); // Chama o método de devolução
+                        System.out.println("Livro devolvido com sucesso!");
+                    }
                     break;
 
                 default:

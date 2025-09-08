@@ -1,6 +1,8 @@
 package biblioteca.model;
 
-public class Utilizador {
+import biblioteca.service.Observer;
+
+public class Utilizador implements Observer {
 
     private String nome;
     private String email;
@@ -34,4 +36,8 @@ public class Utilizador {
         this.tipo = tipo;
     }
 
+    @Override
+    public void atualizar(String mensagem) {
+        System.out.println("Notificação para " + nome + " (" + tipo + "): " + mensagem);
+    }
 }
