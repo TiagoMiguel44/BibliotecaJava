@@ -10,13 +10,15 @@ public class BibliotecaService {
 
 private List<Livro> livros; // lista principal dos livros da biblioteca
     private List<Utilizador> utilizadores;
+    private static BibliotecaService instancia; // instancia singleton da classe
 
 public BibliotecaService() {
     this.livros = new ArrayList<>(); // inicializa a lista de livros
+    this.utilizadores = new ArrayList<>(); // inicializa a lista de utilizadores
 }
 
 
-public List<Livro> getLivrosporTitulo(String titulo) { // metodo que retorna uma lista de livros com base no titulo procurado
+public List<Livro> getLivrosporTitulo(String titulo) { // metodo que retorna uma lista de livros com base no título procurado
     List<Livro> resultados = new ArrayList<>(); // lista que vai conter os livros encontrados
     for (Livro livro : this.livros) { // percorre a lista principal de livros
         if (livro.getTitulo().toLowerCase().contains(titulo.toLowerCase())) { // Para cada livro da lista principal, pega no título desse livro e verifica se contém o texto que o utilizador escreveu.
@@ -48,9 +50,12 @@ public List<Utilizador> getUtilizadores() { // metodo que retorna a lista de uti
     return this.utilizadores;
 }
 
-
-
-
+    public static BibliotecaService getInstancia() {
+        if (instancia == null) { // verifica se a instância já foi criada
+            instancia = new BibliotecaService(); // se não foi criada, cria uma nova instância
+        }
+        return instancia;
+    }
 }
 
 

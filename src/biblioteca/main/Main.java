@@ -3,6 +3,7 @@ package biblioteca.main;
 import biblioteca.model.Livro;
 import biblioteca.model.Utilizador;
 import biblioteca.service.BibliotecaService;
+import biblioteca.service.UtilizadorFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +26,32 @@ public class Main {
         }
     }
 
+    public static void guardarUtilizadores(ArrayList<Utilizador> utilizadores) {
+        try (FileWriter writer = new FileWriter("utilizadores.txt")) {
+            for (Utilizador u : utilizadores) {
+                writer.write(u.getNome() + ";" + u.getEmail() + ";" + u.getTipo() + "\n");
+            }
+        } catch (IOException e) {
+            System.out.println("Erro ao guardar utilizadores: " + e.getMessage());
+        }
+    }
+
+    public static ArrayList<Utilizador> lerUtilizadores() {
+        ArrayList<Utilizador> utilizadores = new ArrayList<>();
+        try (BufferedReader reader = new BufferedReader(new FileReader("utilizadores.txt"))) {
+            String linha;
+            while ((linha = reader.readLine()) != null) {
+                String[] partes = linha.split(";");
+                if (partes.length == 3) {
+                    utilizadores.add(new Utilizador(partes[0], partes[1], partes[2]));
+                }
+            }
+        } catch (IOException e) {
+            System.out.println("Nenhum ficheiro encontrado, a começar vazio.");
+        }
+        return utilizadores;
+    }
+
     public static ArrayList<Livro> lerLivros() {
         ArrayList<Livro> livros = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new FileReader("livros.txt"))) {
@@ -43,11 +70,16 @@ public class Main {
 
     public static void main(String[] args) {
         Scanner input = new Scanner(System.in);
-        BibliotecaService bibliotecaService = new BibliotecaService();
+        BibliotecaService bibliotecaService = BibliotecaService.getInstancia();
+
 
         // Carregar livros do ficheiro
         ArrayList<Livro> livrosDoFicheiro = lerLivros();
         bibliotecaService.getLivros().addAll(livrosDoFicheiro);
+        // Carregar utilizadores do ficheiro
+        ArrayList<Utilizador> utilizadoresDoFicheiro = lerUtilizadores();
+        bibliotecaService.getUtilizadores().addAll(utilizadoresDoFicheiro);
+
 
         int opcao;
 
@@ -102,7 +134,17 @@ public class Main {
                     System.out.print("Tipo (Aluno/Professor/Administrador): ");
                     String tipo = input.nextLine();
 
-                    bibliotecaService.adicionarUtilizador(new Utilizador(nome, email, tipo));
+                    try {
+                        Utilizador utilizador = UtilizadorFactory.criarUtilizador(nome, email, tipo); // Usar a factory para criar o utilizador
+                        bibliotecaService.adicionarUtilizador(utilizador);
+                        System.out.println("Utilizador adicionado com sucesso!");
+                    } catch (IllegalArgumentException e) {
+                        System.out.println("Erro: " + e.getMessage());
+                    }
+
+                    /* bibliotecaService.adicionarUtilizador(new Utilizador(nome, email, tipo));
+
+                    */
                     System.out.println("Utilizador adicionado com sucesso!");
                     break;
 
@@ -151,12 +193,13 @@ public class Main {
                 case 7:
                     System.out.println("A guardar livros e a sair...");
                     guardarLivros(new ArrayList<>(bibliotecaService.getLivros()));
+                    guardarUtilizadores(new ArrayList<>(bibliotecaService.getUtilizadores()));
                     break;
 
                 default:
                     System.out.println("Opcao invalida.");
             }
-        } while (opcao != 5);
+        } while (opcao != 7);
 
         input.close();
     }
