@@ -12,21 +12,24 @@ public class BibliotecaService {
     // Proximo passo é atualizar a classe BibliotecaService para ter uma lista de livros disponiveis e livros emprestados.
     // Depois criar os metodos para emprestar (remover da lista de disponiveis e adicionar à lista de emprestados) e devolver livros (remover da lista de emprestados e adicionar à lista de disponiveis e notificar os observadores).
 
-    private List<Livro> livros; // lista principal dos livros da biblioteca
+
+    private List<Livro> livrosDisponiveis; // lista de livros disponiveis para emprestimo
+    private List<Livro> livrosEmprestados; // lista de livros emprestados
     private List<Utilizador> utilizadores;
     private static BibliotecaService instancia; // instancia singleton da classe
     private List<Observer> observers; // lista de observadores (utilizadores)
 
     public BibliotecaService() {
-        this.livros = new ArrayList<>(); // inicializa a lista de livros
+        this.livrosDisponiveis = new ArrayList<>(); // inicializa a lista de livros
         this.utilizadores = new ArrayList<>(); // inicializa a lista de utilizadores
         this.observers = new ArrayList<>(); // inicializa a lista de observadores
+        this.livrosEmprestados = new ArrayList<>(); // inicializa a lista de livros emprestados
     }
 
 
     public List<Livro> getLivrosporTitulo(String titulo) { // metodo que retorna uma lista de livros com base no título procurado
         List<Livro> resultados = new ArrayList<>(); // lista que vai conter os livros encontrados
-        for (Livro livro : this.livros) { // percorre a lista principal de livros
+        for (Livro livro : this.livrosDisponiveis) { // percorre a lista principal de livros
             if (livro.getTitulo().toLowerCase().contains(titulo.toLowerCase())) { // Para cada livro da lista principal, pega no título desse livro e verifica se contém o texto que o utilizador escreveu.
                 resultados.add(livro); // adiciona o livro encontrado na lista de resultados
             }
@@ -36,7 +39,7 @@ public class BibliotecaService {
 
     public List<Livro> getLivrosporAutor(String autor) {
         List<Livro> livros = new ArrayList<>();
-        for (Livro livro : this.livros) {
+        for (Livro livro : this.livrosDisponiveis) {
             if (livro.getAutor().toLowerCase().contains(autor.toLowerCase())) {
                 livros.add(livro);
             }
@@ -44,8 +47,12 @@ public class BibliotecaService {
         return livros;
     }
 
-    public List<Livro> getLivros() { // metodo que retorna a lista principal de livros
-        return this.livros;
+    public List<Livro> getLivrosDisponiveis() { // metodo que retorna a lista principal de livros
+        return this.livrosDisponiveis;
+    }
+
+    public List<Livro> getLivrosEmprestados(String titulo) { // metodo que retorna a lista de livros emprestados
+        return this.livrosEmprestados;
     }
 
     public void adicionarUtilizador(Utilizador utilizador) { // metodo que adiciona um utilizador à lista de utilizadores
@@ -58,7 +65,7 @@ public class BibliotecaService {
     }
 
     public void adicionarLivro(Livro livro) {
-        this.livros.add(livro);
+        this.livrosDisponiveis.add(livro);
         notificarObservadores("Novo livro adicionado: " + livro.getTitulo());
     }
 
@@ -79,9 +86,24 @@ public class BibliotecaService {
         }
     }
 
+    public void emprestarLivro(Livro livro) {
+        if (livrosDisponiveis.contains(livro)) {
+            livrosDisponiveis.remove(livro); // remove o livro da lista de livros disponíveis
+            livrosEmprestados.add(livro); // adiciona o livro à lista de livros emprestados
+            notificarObservadores("O livro '" + livro.getTitulo() + "' foi emprestado.");
+        } else {
+            System.out.println("O livro '" + livro.getTitulo() + "' não está disponível para empréstimo.");
+        }
+    }
+
     public void devolverLivro(Livro livro) {
-        this.livros.add(livro); // adiciona o livro devolvido à lista de livros
-        notificarObservadores("O livro '" + livro.getTitulo() + "' foi devolvido.");
+        if (livrosEmprestados.contains(livro)) {
+            livrosEmprestados.remove(livro); // remove o livro da lista de livros emprestados
+            livrosDisponiveis.add(livro); // adiciona o livro à lista de livros disponíveis
+            notificarObservadores("O livro '" + livro.getTitulo() + "' foi devolvido e está novamente disponível.");
+        } else {
+            System.out.println("O livro '" + livro.getTitulo() + "' não está na lista de livros emprestados.");
+        }
 
     }
 

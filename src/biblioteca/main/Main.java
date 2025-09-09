@@ -72,14 +72,13 @@ public class Main {
         Scanner input = new Scanner(System.in);
         BibliotecaService bibliotecaService = BibliotecaService.getInstancia();
 
-
         // Carregar livros do ficheiro
         ArrayList<Livro> livrosDoFicheiro = lerLivros();
-        bibliotecaService.getLivros().addAll(livrosDoFicheiro);
+        bibliotecaService.getLivrosDisponiveis().addAll(livrosDoFicheiro);
+
         // Carregar utilizadores do ficheiro
         ArrayList<Utilizador> utilizadoresDoFicheiro = lerUtilizadores();
         bibliotecaService.getUtilizadores().addAll(utilizadoresDoFicheiro);
-
 
         int opcao;
 
@@ -91,8 +90,9 @@ public class Main {
             System.out.println("4. Listar Utilizadores");
             System.out.println("5. Listar Livros por Titulo");
             System.out.println("6. Listar Livros por Autor");
-            System.out.println("7. Sair");
-            System.out.print("8. Devolver Livro");
+            System.out.println("7. Devolver Livro");
+            System.out.println("8. Sair");
+            System.out.print("9. Emprestar Livro");
             System.out.print("Escolha uma opcao: ");
             opcao = input.nextInt();
             input.nextLine(); // Consumir a nova linha
@@ -110,15 +110,15 @@ public class Main {
                     String isbn = input.nextLine();
 
                     Livro novoLivro = new Livro(titulo, autor, ano, isbn);
-                    bibliotecaService.getLivros().add(novoLivro);
+                    bibliotecaService.getLivrosDisponiveis().add(novoLivro);
                     System.out.println("Livro adicionado com sucesso!");
                     break;
 
                 case 2:
-                    if (bibliotecaService.getLivros().isEmpty()) {
+                    if (bibliotecaService.getLivrosDisponiveis().isEmpty()) {
                         System.out.println("Nenhum livro registado.");
                     } else {
-                        for (Livro livro : bibliotecaService.getLivros()) {
+                        for (Livro livro : bibliotecaService.getLivrosDisponiveis()) {
                             System.out.println("Titulo: " + livro.getTitulo() +
                                     ", Autor: " + livro.getAutor() +
                                     ", Ano: " + livro.getAnoPublicacao() +
@@ -136,18 +136,13 @@ public class Main {
                     String tipo = input.nextLine();
 
                     try {
-                        Utilizador utilizador = UtilizadorFactory.criarUtilizador(nome, email, tipo); // Usar a factory para criar o utilizador
+                        Utilizador utilizador = UtilizadorFactory.criarUtilizador(nome, email, tipo);
                         bibliotecaService.adicionarUtilizador(utilizador);
                         bibliotecaService.registarObservador(utilizador);
                         System.out.println("Utilizador adicionado com sucesso!");
                     } catch (IllegalArgumentException e) {
                         System.out.println("Erro: " + e.getMessage());
                     }
-
-                    /* bibliotecaService.adicionarUtilizador(new Utilizador(nome, email, tipo));
-
-                    */
-                    System.out.println("Utilizador adicionado com sucesso!");
                     break;
 
                 case 4:
@@ -161,10 +156,11 @@ public class Main {
                         }
                     }
                     break;
+
                 case 5:
                     System.out.print("Digite o titulo para pesquisa: ");
                     String tituloPesquisa = input.nextLine();
-                    List<Livro> resultadosTitulo = new ArrayList<>(bibliotecaService.getLivrosporTitulo(tituloPesquisa));
+                    List<Livro> resultadosTitulo = bibliotecaService.getLivrosporTitulo(tituloPesquisa);
                     if (resultadosTitulo.isEmpty()) {
                         System.out.println("Nenhum livro encontrado com esse titulo.");
                     } else {
@@ -176,10 +172,11 @@ public class Main {
                         }
                     }
                     break;
+
                 case 6:
                     System.out.print("Digite o autor para pesquisa: ");
                     String autorPesquisa = input.nextLine();
-                    List<Livro> resultadosAutor = new ArrayList<>(bibliotecaService.getLivrosporAutor(autorPesquisa));
+                    List<Livro> resultadosAutor = bibliotecaService.getLivrosporAutor(autorPesquisa);
                     if (resultadosAutor.isEmpty()) {
                         System.out.println("Nenhum livro encontrado com esse autor.");
                     } else {
@@ -193,28 +190,40 @@ public class Main {
                     break;
 
                 case 7:
-                    System.out.println("A guardar livros e a sair...");
-                    guardarLivros(new ArrayList<>(bibliotecaService.getLivros()));
-                    guardarUtilizadores(new ArrayList<>(bibliotecaService.getUtilizadores()));
-                    break;
-                case 8:
                     System.out.print("Digite o titulo do livro a devolver: ");
                     String tituloDevolucao = input.nextLine();
-                    List<Livro> livrosencontrados = bibliotecaService.getLivrosporTitulo(tituloDevolucao);
-                    if (livrosencontrados.isEmpty()) {
+                    List<Livro> livrosEncontrados = bibliotecaService.getLivrosEmprestados(tituloDevolucao);
+                    if (livrosEncontrados.isEmpty()) {
                         System.out.println("Nenhum livro encontrado com esse titulo.");
                     } else {
-                        // Simular a devolução do livro (aqui apenas removemos da lista)
-                        Livro livrodevolvido = livrosencontrados.getFirst(); // Devolve o primeiro livro encontrado
-                        bibliotecaService.devolverLivro(livrodevolvido); // Chama o método de devolução
+                        Livro livroDevolvido = livrosEncontrados.get(0); // Pega no primeiro encontrado
+                        bibliotecaService.devolverLivro(livroDevolvido);
                         System.out.println("Livro devolvido com sucesso!");
+                    }
+                    break;
+
+                case 8:
+                    System.out.println("A guardar dados e a sair...");
+                    guardarLivros(new ArrayList<>(bibliotecaService.getLivrosDisponiveis()));
+                    guardarUtilizadores(new ArrayList<>(bibliotecaService.getUtilizadores()));
+                    break;
+                case 9:
+                    System.out.print("Digite o titulo do livro a emprestar: ");
+                    String tituloEmprestimo = input.nextLine();
+                    List<Livro> livrosParaEmprestimo = bibliotecaService.getLivrosporTitulo(tituloEmprestimo);
+                    if (livrosParaEmprestimo.isEmpty()) {
+                        System.out.println("Nenhum livro encontrado com esse titulo.");
+                    } else {
+                        Livro livroEmprestado = livrosParaEmprestimo.get(0); // Pega no primeiro encontrado
+                        bibliotecaService.emprestarLivro(livroEmprestado);
+                        System.out.println("Livro emprestado com sucesso!");
                     }
                     break;
 
                 default:
                     System.out.println("Opcao invalida.");
             }
-        } while (opcao != 7);
+        } while (opcao != 8);
 
         input.close();
     }
