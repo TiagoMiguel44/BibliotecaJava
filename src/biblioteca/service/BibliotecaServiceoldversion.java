@@ -6,7 +6,7 @@ import biblioteca.model.Utilizador;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BibliotecaService {
+public class BibliotecaServiceoldversion {
 
 
     // Proximo passo é atualizar a classe BibliotecaService para ter uma lista de livros disponiveis e livros emprestados.
@@ -16,10 +16,10 @@ public class BibliotecaService {
     private List<Livro> livrosDisponiveis; // lista de livros disponiveis para emprestimo
     private List<Livro> livrosEmprestados; // lista de livros emprestados
     private List<Utilizador> utilizadores;
-    private static BibliotecaService instancia; // instancia singleton da classe
+    private static BibliotecaServiceoldversion instancia; // instancia singleton da classe
     private List<Observer> observers; // lista de observadores (utilizadores)
 
-    public BibliotecaService() {
+    public BibliotecaServiceoldversion() {
         this.livrosDisponiveis = new ArrayList<>(); // inicializa a lista de livros
         this.utilizadores = new ArrayList<>(); // inicializa a lista de utilizadores
         this.observers = new ArrayList<>(); // inicializa a lista de observadores
@@ -69,9 +69,9 @@ public class BibliotecaService {
         notificarObservadores("Novo livro adicionado: " + livro.getTitulo());
     }
 
-    public static BibliotecaService getInstancia() {
+    public static BibliotecaServiceoldversion getInstancia() {
         if (instancia == null) { // verifica se a instância já foi criada
-            instancia = new BibliotecaService(); // se não foi criada, cria uma nova instância
+            instancia = new BibliotecaServiceoldversion(); // se não foi criada, cria uma nova instância
         }
         return instancia;
     }
